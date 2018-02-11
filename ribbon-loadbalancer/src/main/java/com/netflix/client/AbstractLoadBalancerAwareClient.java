@@ -90,6 +90,7 @@ public abstract class AbstractLoadBalancerAwareClient<S extends ClientRequest, T
      * @param request request to be dispatched to a server chosen by the load balancer. The URI can be a partial
      * URI which does not contain the host name or the protocol.
      */
+    // 真正执行请求的入口
     public T executeWithLoadBalancer(final S request, final IClientConfig requestConfig) throws ClientException {
         LoadBalancerCommand<T> command = buildLoadBalancerCommand(request, requestConfig);
 
@@ -99,6 +100,7 @@ public abstract class AbstractLoadBalancerAwareClient<S extends ClientRequest, T
                     @Override
                     public Observable<T> call(Server server) {
                         URI finalUri = reconstructURIWithServer(server, request.getUri());
+                        // 直接clone一个新的request，并不会改变原本的request
                         S requestForServer = (S) request.replaceUri(finalUri);
                         try {
                             return Observable.just(AbstractLoadBalancerAwareClient.this.execute(requestForServer, requestConfig));

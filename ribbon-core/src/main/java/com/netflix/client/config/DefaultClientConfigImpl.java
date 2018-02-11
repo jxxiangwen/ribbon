@@ -80,6 +80,7 @@ You should use {@link #getClientConfigWithDefaultValues(String, String)} - in th
  * @author awang
  *
  */
+// spring cloud
 public class DefaultClientConfigImpl implements IClientConfig {
 
     public static final Boolean DEFAULT_PRIORITIZE_VIP_ADDRESS_BASED_SERVERS = Boolean.TRUE;

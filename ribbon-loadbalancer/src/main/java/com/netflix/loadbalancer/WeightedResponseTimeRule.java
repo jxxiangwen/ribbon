@@ -175,6 +175,7 @@ public class WeightedResponseTimeRule extends RoundRobinRule {
             int serverIndex = 0;
 
             // last one in the list is the sum of all weights
+            // 权重数组的最后一个是总权重
             double maxTotalWeight = currentWeights.size() == 0 ? 0 : currentWeights.get(currentWeights.size() - 1); 
             // No server has been hit yet and total weight is not initialized
             // fallback to use round robin
@@ -262,8 +263,12 @@ public class WeightedResponseTimeRule extends RoundRobinRule {
                 List<Double> finalWeights = new ArrayList<Double>();
                 for (Server server : nlb.getAllServers()) {
                     ServerStats ss = stats.getSingleServerStat(server);
+                    // 根据响应时间占比设置权重
                     double weight = totalResponseTime - ss.getResponseTimeAvg();
                     weightSoFar += weight;
+                    // 权重是相加
+                    // 比如 响应时间是1,2,2,3
+                    // 那么得到的最终权重数组就是1,3,5,8
                     finalWeights.add(weightSoFar);   
                 }
                 setWeights(finalWeights);

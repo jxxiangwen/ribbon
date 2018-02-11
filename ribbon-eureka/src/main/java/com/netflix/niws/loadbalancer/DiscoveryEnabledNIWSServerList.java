@@ -37,12 +37,14 @@ import org.slf4j.LoggerFactory;
 import javax.inject.Provider;
 
 /**
+ * 与eureka集成使用
  * The server list class that fetches the server information from Eureka client. ServerList is used by
  * {@link DynamicServerListLoadBalancer} to get server list dynamically.
  *
  * @author stonse
  *
  */
+// spring cloud
 public class DiscoveryEnabledNIWSServerList extends AbstractServerList<DiscoveryEnabledServer>{
 
     private static final Logger logger = LoggerFactory.getLogger(DiscoveryEnabledNIWSServerList.class);

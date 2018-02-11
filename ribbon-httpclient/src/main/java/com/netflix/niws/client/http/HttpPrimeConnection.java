@@ -45,7 +45,14 @@ public class HttpPrimeConnection implements IPrimeConnection {
     
     public HttpPrimeConnection() {
     }
-    
+
+    /**
+     * 本函数并不会catch 异常，由外层函数catch异常之后判断连接是否异常
+     * @param server Server to connect
+     * @param primeConnectionsURIPath 相当于心跳检测url
+     * @return 连接结果
+     * @throws Exception 连接不成功抛出 有其他异常也会抛出
+     */
     @Override
     public boolean connect(Server server, String primeConnectionsURIPath) throws Exception {
         String url = "http://" + server.getHostPort() + primeConnectionsURIPath;

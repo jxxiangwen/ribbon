@@ -122,7 +122,8 @@ public abstract class AbstractServerPredicate implements Predicate<PredicateKey>
     }
  
     /**
-     * Get servers filtered by this predicate from list of servers. 
+     * Get servers filtered by this predicate from list of servers.
+     * 可以根据loadBalancerKey选择合适的Server，如果不传递不过滤
      */
     public List<Server> getEligibleServers(List<Server> servers, Object loadBalancerKey) {
         if (loadBalancerKey == null) {

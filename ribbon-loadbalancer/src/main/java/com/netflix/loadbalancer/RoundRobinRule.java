@@ -29,7 +29,6 @@ import java.util.concurrent.atomic.AtomicInteger;
  *
  * @author stonse
  * @author Nikos Michalakis <nikos@netflix.com>
- *
  */
 public class RoundRobinRule extends AbstractLoadBalancerRule {
 
@@ -56,6 +55,7 @@ public class RoundRobinRule extends AbstractLoadBalancerRule {
 
         Server server = null;
         int count = 0;
+        // 最多重试10次
         while (server == null && count++ < 10) {
             List<Server> reachableServers = lb.getReachableServers();
             List<Server> allServers = lb.getAllServers();
@@ -67,6 +67,7 @@ public class RoundRobinRule extends AbstractLoadBalancerRule {
                 return null;
             }
 
+            // 原子性的求余
             int nextServerIndex = incrementAndGetModulo(serverCount);
             server = allServers.get(nextServerIndex);
 
@@ -76,6 +77,7 @@ public class RoundRobinRule extends AbstractLoadBalancerRule {
                 continue;
             }
 
+            // alive and ready
             if (server.isAlive() && (server.isReadyToServe())) {
                 return (server);
             }
@@ -88,6 +90,7 @@ public class RoundRobinRule extends AbstractLoadBalancerRule {
             log.warn("No available alive servers after 10 tries from load balancer: "
                     + lb);
         }
+        // always be null
         return server;
     }
 
@@ -98,11 +101,12 @@ public class RoundRobinRule extends AbstractLoadBalancerRule {
      * @return The next value.
      */
     private int incrementAndGetModulo(int modulo) {
-        for (;;) {
+        for (; ; ) {
             int current = nextServerCyclicCounter.get();
             int next = (current + 1) % modulo;
-            if (nextServerCyclicCounter.compareAndSet(current, next))
+            if (nextServerCyclicCounter.compareAndSet(current, next)) {
                 return next;
+            }
         }
     }
 

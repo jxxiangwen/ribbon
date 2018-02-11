@@ -589,6 +589,7 @@ public class LoadBalancerContext implements IClientConfigAware {
         try {
             StringBuilder sb = new StringBuilder();
             sb.append(scheme).append("://");
+            // 用户信息
             if (!Strings.isNullOrEmpty(original.getRawUserInfo())) {
                 sb.append(original.getRawUserInfo()).append("@");
             }

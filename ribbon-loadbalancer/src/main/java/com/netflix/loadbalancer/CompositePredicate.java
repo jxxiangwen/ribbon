@@ -104,6 +104,7 @@ public class CompositePredicate extends AbstractServerPredicate {
     public List<Server> getEligibleServers(List<Server> servers, Object loadBalancerKey) {
         List<Server> result = super.getEligibleServers(servers, loadBalancerKey);
         Iterator<AbstractServerPredicate> i = fallbacks.iterator();
+        // 默认不会走
         while (!(result.size() >= minimalFilteredServers && result.size() > (int) (servers.size() * minimalFilteredPercentage))
                 && i.hasNext()) {
             AbstractServerPredicate predicate = i.next();

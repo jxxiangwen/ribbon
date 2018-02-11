@@ -17,9 +17,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /**
  * A default strategy for the dynamic server list updater to update.
  * (refactored and moved here from {@link com.netflix.loadbalancer.DynamicServerListLoadBalancer})
- *
+ * 默认服务列表更新器
  * @author David Liu
  */
+// spring cloud
 public class PollingServerListUpdater implements ServerListUpdater {
 
     private static final Logger logger = LoggerFactory.getLogger(PollingServerListUpdater.class);
@@ -96,8 +97,8 @@ public class PollingServerListUpdater implements ServerListUpdater {
     }
 
     public PollingServerListUpdater(final long initialDelayMs, final long refreshIntervalMs) {
-        this.initialDelayMs = initialDelayMs;
-        this.refreshIntervalMs = refreshIntervalMs;
+        this.initialDelayMs = initialDelayMs; // 1s
+        this.refreshIntervalMs = refreshIntervalMs; // 30s
     }
 
     @Override

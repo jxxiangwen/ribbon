@@ -58,6 +58,7 @@ import com.netflix.servo.monitor.Timer;
  * @author aspyker
  * 
  */
+// 此类可以用来测试server是否还活着，但是spring cloud 默认并没有使用
 public class PrimeConnections {
 
     public static interface PrimeConnectionListener {
@@ -374,6 +375,10 @@ public class PrimeConnections {
         return success;
     }
 
+    /**
+     * 简单的避退算法
+     * @param tryNum 尝试次数
+     */
     private void sleepBeforeRetry(int tryNum) {
         try {
             int sleep = (tryNum + 1) * 100;

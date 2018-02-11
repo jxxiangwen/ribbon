@@ -33,6 +33,7 @@ import com.netflix.loadbalancer.Server;
  * @author stonse
  *
  */
+// spring cloud
 public class NIWSDiscoveryPing extends AbstractLoadBalancerPing {
 	        
 		BaseLoadBalancer lb = null; 

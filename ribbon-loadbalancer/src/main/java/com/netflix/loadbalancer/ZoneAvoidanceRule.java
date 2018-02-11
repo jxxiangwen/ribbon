@@ -29,10 +29,11 @@ import com.netflix.client.config.IClientConfig;
  * A rule that uses the a {@link CompositePredicate} to filter servers based on zone and availability. The primary predicate is composed of
  * a {@link ZoneAvoidancePredicate} and {@link AvailabilityPredicate}, with the fallbacks to {@link AvailabilityPredicate}
  * and an "always true" predicate returned from {@link AbstractServerPredicate#alwaysTrue()} 
- * 
+ * PollingServerListUpdater
  * @author awang
  *
  */
+// spring cloud
 public class ZoneAvoidanceRule extends PredicateBasedRule {
 
     private static final Random random = new Random();
@@ -119,6 +120,7 @@ public class ZoneAvoidanceRule extends PredicateBasedRule {
                 limitedZoneAvailability = true;
             } else {
                 double loadPerServer = zoneSnapshot.getLoadPerServer();
+                // 经常触发断路 或者 机器负载<0
                 if (((double) zoneSnapshot.getCircuitTrippedCount())
                         / instanceCount >= triggeringBlackoutPercentage
                         || loadPerServer < 0) {
@@ -128,6 +130,7 @@ public class ZoneAvoidanceRule extends PredicateBasedRule {
                     if (Math.abs(loadPerServer - maxLoadPerServer) < 0.000001d) {
                         // they are the same considering double calculation
                         // round error
+                        // 坏区
                         worstZones.add(zone);
                     } else if (loadPerServer > maxLoadPerServer) {
                         maxLoadPerServer = loadPerServer;

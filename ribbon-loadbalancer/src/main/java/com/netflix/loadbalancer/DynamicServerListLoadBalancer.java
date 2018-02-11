@@ -43,6 +43,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @author stonse
  * 
  */
+// 1.通过DiscoveryEnabledNIWSServerList去获取eureka中的
+// 2.提供filter可以去排除从eureka获取到的server
 public class DynamicServerListLoadBalancer<T extends Server> extends BaseLoadBalancer {
     private static final Logger LOGGER = LoggerFactory.getLogger(DynamicServerListLoadBalancer.class);
 
@@ -51,11 +53,20 @@ public class DynamicServerListLoadBalancer<T extends Server> extends BaseLoadBal
 
     // to keep track of modification of server lists
     protected AtomicBoolean serverListUpdateInProgress = new AtomicBoolean(false);
-
+    /**
+     * spring cloud使用的是DiscoveryEnabledNIWSServerList
+     * 可以通过serviceId获取到存在的实例
+     */
     volatile ServerList<T> serverListImpl;
-
+    /**
+     * 提供过滤服务
+     */
     volatile ServerListFilter<T> filter;
 
+    /**
+     * 使用PollingServerListUpdater定时刷新，刷新间隔30s
+     * 也就是说只有刷新是否才能获取到新添加的eureka client
+     */
     protected final ServerListUpdater.UpdateAction updateAction = new ServerListUpdater.UpdateAction() {
         @Override
         public void doUpdate() {
@@ -139,8 +150,9 @@ public class DynamicServerListLoadBalancer<T extends Server> extends BaseLoadBal
         boolean primeConnection = this.isEnablePrimingConnections();
         // turn this off to avoid duplicated asynchronous priming done in BaseLoadBalancer.setServerList()
         this.setEnablePrimingConnections(false);
+        // 启动PollingServerListUpdater 定时刷新
         enableAndInitLearnNewServersFeature();
-
+        // 初始化刷新一次
         updateListOfServers();
         if (primeConnection && this.getPrimeConnections() != null) {
             this.getPrimeConnections()
@@ -154,6 +166,7 @@ public class DynamicServerListLoadBalancer<T extends Server> extends BaseLoadBal
     @Override
     public void setServersList(List lsrv) {
         super.setServersList(lsrv);
+        // 以下主要是给Server分区
         List<T> serverList = (List<T>) lsrv;
         Map<String, List<Server>> serversInZones = new HashMap<String, List<Server>>();
         for (Server server : serverList) {
@@ -206,6 +219,7 @@ public class DynamicServerListLoadBalancer<T extends Server> extends BaseLoadBal
     }
 
     /**
+     * 启动服务更新，使用PollingServerListUpdater定时刷新，刷新间隔30s
      * Feature that lets us add new instances (from AMIs) to the list of
      * existing servers that the LB will use Call this method if you want this
      * feature enabled
@@ -229,6 +243,7 @@ public class DynamicServerListLoadBalancer<T extends Server> extends BaseLoadBal
     public void updateListOfServers() {
         List<T> servers = new ArrayList<T>();
         if (serverListImpl != null) {
+            // spring cloud 实现中会取eureka中的实例
             servers = serverListImpl.getUpdatedListOfServers();
             LOGGER.debug("List of Servers for {} obtained from Discovery client: {}",
                     getIdentifier(), servers);

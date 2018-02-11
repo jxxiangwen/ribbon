@@ -50,6 +50,9 @@ For each request, the steps above will be repeated. That is to say, each zone re
  *
  * @param <T>
  */
+// Spring 默认采用的负载均衡类
+// 单zone此类没有作用
+// spring cloud
 public class ZoneAwareLoadBalancer<T extends Server> extends DynamicServerListLoadBalancer<T> {
 
     private ConcurrentHashMap<String, BaseLoadBalancer> balancers = new ConcurrentHashMap<String, BaseLoadBalancer>();
@@ -76,6 +79,15 @@ public class ZoneAwareLoadBalancer<T extends Server> extends DynamicServerListLo
         super(clientConfig, rule, ping, serverList, filter);
     }
 
+    /**
+     * spring cloud使用的是此构造函数
+     * @param clientConfig {@link DefaultClientConfigImpl}
+     * @param rule {@link ZoneAvoidanceRule}
+     * @param ping {@link NIWSDiscoveryPing}
+     * @param serverList  使用的是DomainExtractingServerList 扩展于{@link DiscoveryEnabledNIWSServerList}
+     * @param filter spring cloud 使用的是ZonePreferenceServerListFilter扩展于{@link ZoneAffinityServerListFilter}
+     * @param serverListUpdater {@link PollingServerListUpdater}
+     */
     public ZoneAwareLoadBalancer(IClientConfig clientConfig, IRule rule,
                                  IPing ping, ServerList<T> serverList, ServerListFilter<T> filter,
                                  ServerListUpdater serverListUpdater) {
@@ -108,10 +120,12 @@ public class ZoneAwareLoadBalancer<T extends Server> extends DynamicServerListLo
         
     @Override
     public Server chooseServer(Object key) {
+        // 目前只有一个zone
         if (!ENABLED.get() || getLoadBalancerStats().getAvailableZones().size() <= 1) {
             logger.debug("Zone aware logic disabled or there is only one zone");
             return super.chooseServer(key);
         }
+        // 多zone 每一个zone都会有一个LoadBalancer
         Server server = null;
         try {
             LoadBalancerStats lbStats = getLoadBalancerStats();
